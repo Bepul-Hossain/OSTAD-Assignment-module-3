@@ -45,5 +45,9 @@ npm start
 
 2. **Default Port**: By Default this application will run on port 3001
 
+  runs-on: 
+    self-hosted: true
+    labels: [self-hosted]
 
-
+#OR
+   runs-on: self-hosted
