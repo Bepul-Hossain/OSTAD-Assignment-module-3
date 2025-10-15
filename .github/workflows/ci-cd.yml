@@ -47,7 +47,6 @@ jobs:
     name: Deploy Application
     needs: test
     runs-on: self-hosted
-    labels: [self-hosted]   # Change this to match your self-hosted runner label
 
     steps:
       - name: Checkout repository
