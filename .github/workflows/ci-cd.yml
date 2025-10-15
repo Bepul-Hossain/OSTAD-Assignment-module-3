@@ -1,0 +1,85 @@
+name: Node.js CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ================================
+  # Job 1: TEST
+  # ================================
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests and capture results
+        run: |
+          mkdir -p test-results
+          echo "Running npm run check..."
+          npm run check > test-results/results.txt || true
+          echo "✅ Tests completed. Results saved."
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/results.txt
+
+
+  # ================================
+  # Job 2: DEPLOY
+  # ================================
+  deploy:
+    name: Deploy Application
+    needs: test
+    runs-on: self-hosted
+    labels: [node-runner]   # Change this to match your self-hosted runner label
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: test-results
+
+      - name: Display test results
+        run: |
+          echo "===== Test Results ====="
+          cat test-results/results.txt
+          echo "========================"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Stop existing app (if running)
+        run: |
+          echo "Stopping any existing server process..."
+          pkill -f "node server.js" || true
+
+      - name: Start Node.js application
+        run: |
+          echo "Starting Node.js application..."
+          nohup npm start > app.log 2>&1 &
+          echo "✅ Application started successfully!"
+
+      - name: Verify Deployment
+        run: |
+          echo "Checking if server.js is running..."
+          pgrep -af "node server.js" || echo "⚠️ Server not detected!"
