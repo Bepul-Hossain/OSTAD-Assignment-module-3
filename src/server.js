@@ -8,7 +8,7 @@ const fileURLToPath = require('url');
 // const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3001;
+const port = process.env.PORT || 3000;
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -21,8 +21,16 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Hello World' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://0.0.0.0:${PORT}`);
-});
+let server;
 
-module.exports = app
+// if (import.meta.url === new URL(import.meta.resolve('./server.js')).href) {
+//   server = app.listen(port, () => {
+//     console.log(`Server is running on port ${port}`);
+//   });
+// }
+
+if (require.main === module) {
+  // If the file is run directly, start the server
+  const PORT = 3001;
+  server = app.listen(PORT, '0.0.0.0', () => console.log(`Server running at http://0.0.0.0:${PORT})`));
+}
