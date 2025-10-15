@@ -43,7 +43,7 @@ npm start
    /api # this will response a json
    ```
 
-2. **Default Port**: By Default this application will run on port 3000
+2. **Default Port**: By Default this application will run on port 3001
 
 
 
